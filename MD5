@@ -1,0 +1,14 @@
+26b3e91b41671e72943939803f2e5387 *DESCRIPTION
+ad675761bf3efe66db0fcb5939ebb49d *NAMESPACE
+f247dab30732d69f20e61fa4aacd392a *R/filterStream.R
+32a5f22d22030697ea35e7cf37ceb0e6 *R/parseTweets.R
+8b96a2a802603e71d6216ba7c0b4cdac *R/sampleStream.R
+d090654828d5ca1063e2c8e378031f70 *R/streamR-package.R
+cb0d92fe2ca61e3ed0694e6c51c26781 *R/userStream.R
+370c09d85598b9fe4a80ccdec9c8e712 *data/example_tweets.rdata
+44202a9ac6c12e7195c49b2279a932de *man/example_tweets.Rd
+4dc60ca73ef6dd518e6288ed3ccb9bab *man/filterStream.Rd
+f4bed0cffd7b8c8e1c2d2326e5229995 *man/parseTweets.Rd
+c9e2388bca3e14f39163b677f5a73149 *man/sampleStream.Rd
+4b9dd04bf462d39acf4eee59bf9690fd *man/streamR-package.Rd
+c05fa4a96df9f4328d1beb397528cb73 *man/userStream.Rd
