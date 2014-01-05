@@ -3,14 +3,16 @@
 \title{Connect to Twitter Streaming API and return public statuses that
 match one or more filter predicates.}
 \usage{
-  filterStream(file.name, track = NULL, follow = NULL,
-    locations = NULL, timeout = 10800, user = NULL,
-    password = NULL, oauth = NULL, verbose = TRUE)
+  filterStream(file.name = NULL, track = NULL,
+    follow = NULL, locations = NULL, language = NULL,
+    timeout = 0, tweets = NULL, oauth, verbose = TRUE)
 }
 \arguments{
   \item{file.name}{string, name of the file where tweets
   will be written. "" indicates output to the console,
-  which can be redirected to an R object (see examples).}
+  which can be redirected to an R object (see examples). If
+  the file already exists, tweets will be appended (not
+  overwritten).}
 
   \item{track}{string or string vector containing keywords
   to track. See the \code{track} parameter information in
@@ -31,24 +33,32 @@ match one or more filter predicates.}
   Streaming API documentation for details:
   \url{http://dev.twitter.com/docs/streaming-apis/parameters#locations}}
 
+  \item{language}{string or string vector containing a list
+  of BCP 47 language identifiers. If not \code{NULL}
+  (default), function will only return tweets that have
+  been detected as being written in the specified
+  languages. Note that this parameter can only be used in
+  combination with any of the other filter parameters. See
+  documentation for details:
+  \url{https://dev.twitter.com/docs/streaming-apis/parameters#language}}
+
   \item{timeout}{numeric, maximum length of time (in
   seconds) of connection to stream. The connection will be
-  automatically closed after this period. Default is 10800
-  (3 hours).}
+  automatically closed after this period. For example,
+  setting \code{timeout} to 10800 will keep the connection
+  open for 3 hours. The default is 0, which will keep the
+  connection open permanently.}
 
-  \item{user}{string containing the screen name of the
-  Twitter account that will be used for authentication.}
-
-  \item{password}{string containing the password of the
-  Twitter account that will be used for authentication.
-  Note that this password will be visible to anyone with
-  access to the console. Authentication using OAuth is
-  recommended, and will be the only authentication method
-  allowed once version 1 of the Twitter API is deprecated.}
+  \item{tweets}{numeric, maximum number of tweets to be
+  collected when function is called. After that number of
+  tweets have been captured, function will stop. If set to
+  \code{NULL} (default), the connection will be open for
+  the number of seconds specified in \code{timeout}
+  parameter.}
 
   \item{oauth}{an object of class \code{oauth} that
   contains the access tokens to the user's twitter session.
-  This is the recommended method for authentication. See
+  This is currently the only method for authentication. See
   examples for more details.}
 
   \item{verbose}{logical, default is \code{TRUE}, which
@@ -59,8 +69,9 @@ match one or more filter predicates.}
   \code{filterStream} opens a connection to Twitter's
   Streaming API that will return public statuses that match
   one or more filter predicates. Tweets can be filtered by
-  keywords, users, and location. The output can be saved as
-  an object in memory or written to a text file.
+  keywords, users, language, and location. The output can
+  be saved as an object in memory or written to a text
+  file.
 }
 \details{
   \code{filterStream} provides access to the
@@ -68,9 +79,10 @@ match one or more filter predicates.}
 
   It will return public statuses that match the keywords
   given in the \code{track} argument, published by the
-  users specified in the \code{follow} argument, and sent
-  within the location bounding boxes declared in the
-  \code{locations} argument.
+  users specified in the \code{follow} argument, written in
+  the language specified in the \code{language} argument,
+  and sent within the location bounding boxes declared in
+  the \code{locations} argument.
 
   Note that location bounding boxes do not act as filters
   for other filter parameters. In the fourth example below,
@@ -79,6 +91,10 @@ match one or more filter predicates.}
   area. For more information on how the Streaming API
   request parameters work, check the documentation at:
   \url{http://dev.twitter.com/docs/streaming-apis/parameters}.
+
+  Also note that the \code{language} parameter needs to be
+  used in combination with another filter option (either
+  keywords or location).
 
   If any of these arguments is left empty (e.g. no user
   filter is specified), the function will return all public
@@ -89,24 +105,14 @@ match one or more filter predicates.}
   written to a temporary file, which is loaded in memory as
   a string vector when the connection to the stream is
   closed.
+
+  The total number of actual tweets that are captured might
+  be lower than the number of tweets requested because
+  blank lines, deletion notices, and incomplete tweets are
+  included in the count of tweets downloaded.
 }
 \examples{
 \dontrun{
-## capture tweets mentioning the "Rstats" hashtag
-  filterStream( file="tweets_rstats.json",
-     track="rstats", timeout=3600, user=FOO, password=BAR )
-
-## capture tweets published by Twitter's official account
-  filterStream( file="tweets_twitter.json",
-     follow="783214", timeout=600, user=FOO, password=BAR )
-
-## capture tweets sent from New York City and saving as an object in memory
-  tweets <- filterStream( file="",
-      locations=c(-74,40,-73,41), timeout=600, user=FOO, password=BAR )
-
-## capture tweets mentioning the "rstats" hashtag or sent from New York City
-  filterStream( file="tweets_rstats.json", track="rstats",
-      locations=c(-74,40,-73,41), timeout=600, user=FOO, password=BAR )
 
 ## An example of an authenticated request using the ROAuth package,
 ## where consumerkey and consumer secret are fictitious.
@@ -123,6 +129,23 @@ match one or more filter predicates.}
   my_oauth$handshake(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl"))
   filterStream( file="tweets_rstats.json",
 	   track="rstats", timeout=3600, oauth=my_oauth )
+
+## capture 10 tweets mentioning the "Rstats" hashtag
+  filterStream( file.name="tweets_rstats.json",
+     track="rstats", tweets=10, oauth=my_oauth )
+
+## capture tweets published by Twitter's official account
+  filterStream( file.name="tweets_twitter.json",
+     follow="783214", timeout=600, oauth=my_oauth )
+
+## capture tweets sent from New York City in Spanish only, and saving as an object in memory
+  tweets <- filterStream( file.name="", language="es",
+      locations=c(-74,40,-73,41), timeout=600, oauth=my_oauth )
+
+## capture tweets mentioning the "rstats" hashtag or sent from New York City
+  filterStream( file="tweets_rstats.json", track="rstats",
+      locations=c(-74,40,-73,41), timeout=600, oauth=my_oauth )
+
 }
 }
 \author{

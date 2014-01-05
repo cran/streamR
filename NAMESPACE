@@ -1,6 +1,8 @@
 export(filterStream)
 export(parseTweets)
+export(readTweets)
 export(sampleStream)
 export(userStream)
 import(RCurl)
+import(ROAuth)
 import(rjson)
