@@ -41,23 +41,23 @@
 #' user.
 #'
 #' See the \code{with} parameter information in the Streaming API documentation for details:
-#' \url{https://dev.twitter.com/docs/streaming-apis/parameters#with}
+#' \url{https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/basic-stream-parameters}
 #'
 #' @param replies string, default is \code{NULL}, which will only stream replies sent by
 #' a different user if the authenticated user follows the receiver of the reply. All replies
 #' to users that the authenticated user follows will be included if this argument is set to "all".
 #'
 #' See the \code{replies} parameter information in the Streaming API documentation for details:
-#' \url{https://dev.twitter.com/docs/streaming-apis/parameters#replies}
+#' \url{https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/basic-stream-parameters}
 #'
 #' @param track string or string vector containing keywords to track.
 #' See the track parameter information in the Streaming API documentation for details:
-#' \url{http://dev.twitter.com/docs/streaming-apis/parameters#track}.
+#' \url{https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/basic-stream-parameters}.
 #'
 #' @param locations numeric, a vector of longitude, latitude pairs (with the southwest corner
 #' coming first) specifying sets of bounding boxes to filter statuses by. 
 #' See the locations parameter information in the Streaming API documentation for details:
-#' \url{http://dev.twitter.com/docs/streaming-apis/parameters#locations}
+#' \url{https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/basic-stream-parameters}
 #' 
 #' @param timeout numeric, maximum length of time (in seconds) of connection to stream.
 #' The connection will be automatically closed after this period. For example, setting
@@ -69,10 +69,9 @@
 #' (default), the connection will be open for the number of seconds specified in \code{timeout}
 #' parameter.
 #'
-#' @param oauth an object of class \code{oauth} that contains the access tokens
-#' to the user's twitter session. This is the only method for authentication available
-#' for user streams. See examples for more details.
-#'
+#' @param oauth an object of class \code{oauth} that contains the access token
+#' to the user's twitter session OR a list with details to create a new access token.
+#' See examples for more details.
 #'
 #' @param verbose logical, default is \code{TRUE}, which generates some output to the
 #' R console with information about the capturing process.
@@ -84,15 +83,21 @@
 #' ## You can obtain your own at dev.twitter.com
 #'  library(ROAuth)
 #'  requestURL <- "https://api.twitter.com/oauth/request_token"
-#'  accessURL <- "http://api.twitter.com/oauth/access_token"
-#'  authURL <- "http://api.twitter.com/oauth/authorize"
+#'  accessURL <- "https://api.twitter.com/oauth/access_token"
+#'  authURL <- "https://api.twitter.com/oauth/authorize"
 #'  consumerKey <- "xxxxxyyyyyzzzzzz"
 #'  consumerSecret <- "xxxxxxyyyyyzzzzzzz111111222222"
 #'  my_oauth <- OAuthFactory$new(consumerKey=consumerKey,
 #'     consumerSecret=consumerSecret, requestURL=requestURL,
 #'     accessURL=accessURL, authURL=authURL)
 #'  my_oauth$handshake(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl"))
-#'  save(my_oauth, file="my_oauth")
+#'
+#' ## Alternatively, it is also possible to create a token without the handshake:
+#'  my_oauth <- list(consumer_key = "CONSUMER_KEY",
+#'    consumer_secret = "CONSUMER_SECRET",
+#'    access_token="ACCESS_TOKEN",
+#'    access_token_secret = "ACCESS_TOKEN_SECRET")
+#'
 #' ## Capturing 10 tweets from a user's timeline
 #'  userStream( file.name="my_timeline.json", with="followings",
 #'      tweets=10, oauth=my_oauth )
@@ -102,7 +107,6 @@
 userStream <- function(file.name=NULL, with="followings", replies=NULL, track=NULL, 
 	locations=NULL, timeout=0, tweets=NULL, oauth=NULL, verbose=TRUE)
 {
-	if(!is.null(oauth)){library(ROAuth)}
 	open.in.memory <- FALSE
    
 	# checking user input is correct
@@ -124,12 +128,17 @@ userStream <- function(file.name=NULL, with="followings", replies=NULL, track=NU
 	}
 
    # authentication
-   # authentication
    if (is.null(oauth)) {
     stop("No authentication method was provided. 
    		Please use an OAuth token.") }
    if (!is.null(oauth)){
-   	if (!inherits(oauth, "OAuth")) {
+     if (is.list(oauth)){
+       oauth <- createOAuthToken(consumerKey=oauth$consumer_key, 
+                                 consumerSecret=oauth$consumer_secret, 
+                                 accessToken=oauth$access_token, 
+                                 accessTokenSecret=oauth$access_token_secret)
+     }
+    if (!inherits(oauth, "OAuth")) {
    			stop("oauth argument must be of class OAuth") }
   		if (!oauth$handshakeComplete) {
     		stop("Oauth needs to complete its handshake. See ?filterStream.") }
@@ -159,12 +168,13 @@ userStream <- function(file.name=NULL, with="followings", replies=NULL, track=NU
 		} 
 		if (!is.null(tweets) && is.numeric(tweets) && tweets>0){	
 			write.tweets <- function(x){	
-				if (i>=tweets){break}	
-				# writes output of stream to a file	
-				if (nchar(x)>0) {	
-					i <<- i + 1	
-					writeLines(x, conn, sep="")	
-				}	
+			  while (i<=tweets){
+			    # writes output of stream to a file	
+			    if (nchar(x)>0) {	
+			      i <<- i + 1	
+			      writeLines(x, conn, sep="")	
+			    }	
+			  }
 			}
 		}  
  	}

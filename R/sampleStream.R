@@ -12,7 +12,7 @@
 #'
 #' @details
 #' For more information, check the documentation at:
-#' \url{https://dev.twitter.com/docs/api/1.1/get/statuses/sample}
+#' \url{https://developer.twitter.com/en/docs/tweets/sample-realtime/overview/GET_statuse_sample}
 #'
 #' Note that when no file name is provided, tweets are written to a temporary file, 
 #' which is loaded in memory as a string vector when the connection to the stream
@@ -40,8 +40,8 @@
 #' (default), the connection will be open for the number of seconds specified in \code{timeout}
 #' parameter.
 #'
-#' @param oauth an object of class \code{oauth} that contains the access tokens
-#' to the user's twitter session. This is currently the only method for authentication. 
+#' @param oauth an object of class \code{oauth} that contains the access token
+#' to the user's twitter session OR a list with details to create a new access token.
 #' See examples for more details.
 #'
 #' @param verbose logical, default is \code{TRUE}, which generates some output to the
@@ -56,14 +56,21 @@
 #' ## You can obtain your own at dev.twitter.com
 #'  library(ROAuth)
 #'  reqURL <- "https://api.twitter.com/oauth/request_token"
-#'  accessURL <- "http://api.twitter.com/oauth/access_token"
-#'  authURL <- "http://api.twitter.com/oauth/authorize"
+#'  accessURL <- "https://api.twitter.com/oauth/access_token"
+#'  authURL <- "https://api.twitter.com/oauth/authorize"
 #'  consumerKey <- "xxxxxyyyyyzzzzzz"
 #'  consumerSecret <- "xxxxxxyyyyyzzzzzzz111111222222"
 #'   my_oauth <- OAuthFactory$new(consumerKey=consumerKey,
 #'     consumerSecret=consumerSecret, requestURL=requestURL,
 #'     accessURL=accessURL, authURL=authURL)
 #'  my_oauth$handshake(cainfo = system.file("CurlSSL", "cacert.pem", package = "RCurl"))
+#'
+#' ## Alternatively, it is also possible to create a token without the handshake:
+#'  my_oauth <- list(consumer_key = "CONSUMER_KEY",
+#'    consumer_secret = "CONSUMER_SECRET",
+#'    access_token="ACCESS_TOKEN",
+#'    access_token_secret = "ACCESS_TOKEN_SECRET")
+#'
 #'  sampleStream( file.name="tweets_sample.json", oauth=my_oauth )
 #'
 #' }
@@ -71,13 +78,18 @@
 
 sampleStream <- function(file.name, timeout=0, tweets=NULL, oauth=NULL, verbose=TRUE)
 {
-    if(!is.null(oauth)){library(ROAuth)}
     open.in.memory <- FALSE
    # authentication
    if (is.null(oauth)) {
     stop("No authentication method was provided. 
         Please use an OAuth token.") }
    if (!is.null(oauth)){
+     if (is.list(oauth)){
+       oauth <- createOAuthToken(consumerKey=oauth$consumer_key, 
+                                 consumerSecret=oauth$consumer_secret, 
+                                 accessToken=oauth$access_token, 
+                                 accessTokenSecret=oauth$access_token_secret)
+     }
     if (!inherits(oauth, "OAuth")) {
             stop("oauth argument must be of class OAuth") }
         if (!oauth$handshakeComplete) {
@@ -104,12 +116,14 @@ sampleStream <- function(file.name, timeout=0, tweets=NULL, oauth=NULL, verbose=
     } 
     if (!is.null(tweets) && is.numeric(tweets) && tweets>0){    
         write.tweets <- function(x){    
-            if (i>=tweets){break}   
-            # writes output of stream to a file 
-            if (nchar(x)>0) {   
-                i <<- i + 1 
-                writeLines(x, conn, sep="") 
-            }   
+          while (i<=tweets){
+            # writes output of stream to a file	
+            if (nchar(x)>0) {	
+              i <<- i + 1	
+              writeLines(x, conn, sep="")	
+            }	
+          }
+          
         }
     }  	
 

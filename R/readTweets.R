@@ -16,7 +16,7 @@
 #'
 #' @param verbose logical, default is \code{TRUE}, which will print in the console
 #' the number of tweets that have been parsed.
-#'
+#' 
 #' @details
 #' This function is the first step in the \code{\link{parseTweets}} function and
 #' is provided now as an independent function for convenience purposes. In cases
@@ -56,22 +56,31 @@ readTweets <- function(tweets, verbose=TRUE){
 
     ## Read the text file and save it in memory as a list           
     if (length(tweets)==1 && file.exists(tweets)){
-        lines <- readLines(tweets, encoding="UTF-8")
+        lines <- readLines(tweets)
     }       
     else {
         lines <- tweets
     }
+    ## Converting to UTF-8
+    lines <- iconv(lines, "ASCII", "UTF-8", sub="")
 
     results.list <- lapply(lines[nchar(lines)>0], function(x) tryCatch(fromJSON(x), error=function(e) e))
 
+    ## check if JSON file is coming from search endpoint instead of API
+    search <- 'search_metadata' %in% names(results.list[[1]])
+    if (search) results.list <- results.list[[1]]$statuses
+
     ## removing lines that do not contain tweets or were not properly parsed
-    errors <- which(unlist(lapply(results.list, length))<18)
-    if (length(errors)>0){
-        results.list <- results.list[-errors]
+    #errors <- which(unlist(lapply(results.list, length))<18)
+    if (!search){
+        errors <- which(unlist(lapply(results.list, function(x) 'id' %in% names(x) == FALSE)))
+        if (length(errors)>0){
+            results.list <- results.list[-errors]
+        }        
     }
               
     # information message
-    if (verbose==TRUE) cat(length(results.list), "tweets have been parsed.", "\n")
+    if (verbose==TRUE) message(length(results.list), " tweets have been parsed.")
     return(results.list)
 }
 
