@@ -1,8 +1,8 @@
-03e8f07018f4ebc4a11af90cc9ebbcce *ChangeLog
-6a26f1f1d73a5b9d3cf91289ae6806cb *DESCRIPTION
+d18c0a0a818ce9ce7edbdd90855df80e *ChangeLog
+755c4e2ba56e676b9f05624e7c4afbaa *DESCRIPTION
 b7ed646d851ef7a65355f42bb4146816 *NAMESPACE
 a4f39bb16741baf0ec0d770895692705 *R/filterStream.R
-75992591cdab30cb8b6a1ee69bb8b34e *R/parseTweets.R
+5b8e8bc10baa9a20f7a9d49160077453 *R/parseTweets.R
 e46f900e17dedfb2deae13897f576574 *R/readTweets.R
 8eb531e4e9f752c5f14939720634811e *R/sampleStream.R
 d478a47e03d4ee3a1471e0dbcbeeca87 *R/streamR-package.R
@@ -11,7 +11,7 @@ f2fd4a1fa52d6ac10952d09d8897e0cc *R/userStream.R
 3e388160fa1fb12ce2599e0a92ba3d3c *man/createOAuthToken.Rd
 ee13144da35a826792aa25d5c189aff2 *man/example_tweets.Rd
 7e46af08a0f0daa4d39657723ae44686 *man/filterStream.Rd
-c2f68ccb3e4535fb5d03f8506f5b6be8 *man/parseTweets.Rd
+c004935e7d715a032dc71686af18a159 *man/parseTweets.Rd
 438e63b5b15a3ccf554df1e3c57779bc *man/readTweets.Rd
 2b349e48373224885b6d03c6b4f9a146 *man/sampleStream.Rd
 1de072101b46d153c5a1f51d566fb0db *man/streamR-package.Rd
