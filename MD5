@@ -1,8 +1,8 @@
-d18c0a0a818ce9ce7edbdd90855df80e *ChangeLog
-755c4e2ba56e676b9f05624e7c4afbaa *DESCRIPTION
+bf7eae0b1322b6e42a02a7a2e34af9f2 *ChangeLog
+ffedc29304d9606c82a87850b5514ec3 *DESCRIPTION
 b7ed646d851ef7a65355f42bb4146816 *NAMESPACE
 a4f39bb16741baf0ec0d770895692705 *R/filterStream.R
-5b8e8bc10baa9a20f7a9d49160077453 *R/parseTweets.R
+13f2d717a75d656a62d762466f695dc4 *R/parseTweets.R
 e46f900e17dedfb2deae13897f576574 *R/readTweets.R
 8eb531e4e9f752c5f14939720634811e *R/sampleStream.R
 d478a47e03d4ee3a1471e0dbcbeeca87 *R/streamR-package.R
